@@ -14,54 +14,39 @@ public class MySQLAccess {
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
 
-    public void readDataBase() throws Exception {
+    public void connectDataBase() throws Exception {
         try {
             // Setup the connection swith the DB
-            connect = DriverManager
+            /*connect = DriverManager
                     .getConnection("jdbc:mysql://localhost/mijndomein_db?"
                             + "user=sqluser&password=sqluserpw");
+            */
+        	
+            Class.forName("com.mysql.jdbc.Driver");  
+            connect = DriverManager.getConnection(  
+            "jdbc:mysql://localhost/mijndomein_db?","sqluser","sqluserpw");  
 
-            // Statements allow to issue SQL queries to the database
-            statement = connect.createStatement();
-            // Result set get the result of the SQL query
-            resultSet = statement
-                    .executeQuery("select * from mijndomein_db.comments");
-            writeResultSet(resultSet);
-
-            // PreparedStatements can use variables and are more efficient
-            preparedStatement = connect
-                    .prepareStatement("insert into  mijndomein_db.comments values (default, ?, ?, ?, ? , ?, ?)");
-            // "myuser, webpage, datum, summary, COMMENTS from feedback.comments");
-            // Parameters start with 1
-            preparedStatement.setString(1, "Test");
-            preparedStatement.setString(2, "TestEmail");
-            preparedStatement.setString(3, "TestWebpage");
-            preparedStatement.setDate(4, new java.sql.Date(2009, 12, 11));
-            preparedStatement.setString(5, "TestSummary");
-            preparedStatement.setString(6, "TestComment");
-            preparedStatement.executeUpdate();
-
-            preparedStatement = connect
-                    .prepareStatement("SELECT myuser, webpage, datum, summary, COMMENTS from mijndomein_db.comments");
-            resultSet = preparedStatement.executeQuery();
-            writeResultSet(resultSet);
-
-            // Remove again the insert comment
-            preparedStatement = connect
-            .prepareStatement("delete from mijndomein_db.comments where myuser= ? ; ");
-            preparedStatement.setString(1, "Test");
-            preparedStatement.executeUpdate();
-
-            resultSet = statement
-            .executeQuery("select * from mijndomein_db.comments");
-            writeMetaData(resultSet);
 
         } catch (Exception e) {
             throw e;
-        } finally {
-            close();
         }
+    }
+    
+    public boolean addDevice(int deviceId, int deviceType, int devicePort) throws SQLException 
+    {
+        // Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
 
+        // PreparedStatements can use variables and are more efficient
+        preparedStatement = connect
+                .prepareStatement("insert into  mijndomein_db.devices values (?, ?, ?)");
+        
+        preparedStatement.setInt(1, deviceId);
+        preparedStatement.setInt(2, deviceType);
+        preparedStatement.setInt(3, devicePort);
+        preparedStatement.executeUpdate();
+        
+    	return true;
     }
 
     private void writeMetaData(ResultSet resultSet) throws SQLException {
@@ -114,5 +99,4 @@ public class MySQLAccess {
 
         }
     }
-
 }
