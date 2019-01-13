@@ -51,22 +51,21 @@ public class MySQLAccess {
     	return true;
     }
     
-    public boolean addComponent(int componentID, int hubID, int clusterID, String name, int type, int port, String status) throws SQLException 
+    public boolean addComponent(int hubID, int clusterID, String name, String type, int port, String status) throws SQLException 
     {
         // Statements allow to issue SQL queries to the database
         //statement = connect.createStatement();
 
         // PreparedStatements can use variables and are more efficient
         preparedStatement = connect
-                .prepareStatement("insert into  mijndomeindatabase.domoticacomponent values (?, ?, ?, ?, ?, ?, ?)");
+                .prepareStatement("insert into  mijndomeindatabase.domoticacomponent values (NULL, ?, ?, ?, ?, ?, ?)");
         
-        preparedStatement.setInt(1, componentID);
-        preparedStatement.setInt(2, hubID);
-        preparedStatement.setInt(3, clusterID);
-        preparedStatement.setString(4, name);
-        preparedStatement.setInt(5, type);
-        preparedStatement.setInt(6, port);
-        preparedStatement.setString(7, status);
+        preparedStatement.setInt(1, hubID);
+        preparedStatement.setInt(2, clusterID);
+        preparedStatement.setString(3, name);
+        preparedStatement.setString(4, type);
+        preparedStatement.setInt(5, port);
+        preparedStatement.setString(6, status);
         preparedStatement.executeUpdate();
         close();
     	return true;
@@ -117,21 +116,63 @@ public class MySQLAccess {
     	return true;
     }
     
-    public JSONObject getAllDevices() throws SQLException
+    public JSONObject getAllComponents(int userID) throws SQLException
     {
-    	JSONObject response = null;
+    	JSONObject response = new JSONObject();
+    	int i = 0;
+    	int hubID = 0;
     	
     	// Statements allow to issue SQL queries to the database
-        //statement = connect.createStatement();
+        statement = connect.createStatement();
 
         // PreparedStatements can use variables and are more efficient
-        preparedStatement = connect
-                .prepareStatement("SELECT componentID FROM  mijndomeindatabase.domoticacomponent");
+        String subQuery = String.format("SELECT hubID FROM  mijndomeindatabase.user WHERE userID = %d", userID);
+        resultSet = statement.executeQuery(subQuery);
+        while (resultSet.next())
+        {
+        	hubID = resultSet.getInt("hubID");
+        	System.out.println("hubID found: "+hubID);
+        }
+        resultSet.close();
         
-        preparedStatement.executeUpdate();
-        close();
-    	
+        String query = String.format("SELECT componentID FROM  mijndomeindatabase.domoticacomponent WHERE hubID = %d", hubID);
+        resultSet = statement.executeQuery(query);
+        
+        while (resultSet.next())
+        {
+        	
+        	System.out.println("ComponentID found: "+resultSet.getInt("componentID"));
+        	int componentID = resultSet.getInt("componentID");
+        	response.put("componentID"+i, componentID);
+        	i++;
+        }
+        close();    	
     	return response;
+    }
+    
+    public boolean userLogin(int userID) throws SQLException
+    {    	
+    	int results = 0;
+    	// Statements allow to issue SQL queries to the database
+        statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+        String query = String.format("SELECT userID FROM  mijndomeindatabase.user WHERE userID = (%d)", userID);
+        		
+        ResultSet resultSet = statement.executeQuery(query);
+        while (resultSet.next())
+        {
+        	results++;
+        }
+        close();
+        if (results != 0)
+        {
+        	return true;
+        }
+        else
+        {
+        	return false;
+        }
     }
 
 

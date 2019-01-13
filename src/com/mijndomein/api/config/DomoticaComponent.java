@@ -2,19 +2,14 @@ package com.mijndomein.api.config;
 
 public class DomoticaComponent 
 {
-	private int componentID;
 	private int hubID;
 	private int clusterID;
 	private String name;
-	private int type;
+	private String type;
 	private int port;
 	private String status;
 	    
 	//Setters
-    public void setComponentID(int newComponentID) {
-    	componentID = newComponentID;
-    }
-    
     public void setHubID(int newHubID) {
     	hubID = newHubID;
     }
@@ -27,7 +22,7 @@ public class DomoticaComponent
     	name = newName;
     }
     
-    public void setType(int newType) {
+    public void setType(String newType) {
         type = newType;
     }
     
@@ -39,11 +34,7 @@ public class DomoticaComponent
     	status = newStatus;
     }
     
-    //Getters
-    public int getComponentID() {
-        return componentID;
-    }
-    
+    //Getters  
     public int getHubID() {
     	return hubID;
     }
@@ -56,7 +47,7 @@ public class DomoticaComponent
     	return name;
     }
     
-    public int getType() {
+    public String getType() {
         return type;
     }
     

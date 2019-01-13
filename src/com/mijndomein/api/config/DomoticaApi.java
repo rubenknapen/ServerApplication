@@ -72,11 +72,11 @@ public class DomoticaApi
 	@Consumes(MediaType.APPLICATION_JSON)
 	
 	public Response addComponent (DomoticaComponent component) throws JSONException {
-		int componentID = 0;
+		
 		int hubID = 0;
 		int clusterID = 0;
 		String name = null;
-		int type = 0;
+		String type = null;
 		int port = 0;
 		String status = null;
 		
@@ -84,7 +84,6 @@ public class DomoticaApi
 		
 		try
 		{
-			componentID = component.getComponentID();
 			hubID = component.getHubID();
 			clusterID = component.getClusterID();
 			name = component.getName();
@@ -102,7 +101,7 @@ public class DomoticaApi
 		try 
 		{
 			mysql.connectDataBase();
-			mysql.addComponent(componentID,hubID,clusterID,name,type,port,status);
+			mysql.addComponent(hubID,clusterID,name,type,port,status);
 		}
 		catch (Exception e)
 		{
@@ -160,5 +159,30 @@ public class DomoticaApi
  
 		String result = "Succes \n";
 		return Response.status(200).entity(result).build();
+	}
+	
+	@Path("/component/retrieve/all/{userID}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	
+	public Response getUserComponents (@PathParam("userID") int userID) throws JSONException {
+		
+		MySQLAccess mysql = new MySQLAccess();
+		
+		JSONObject returnData = null;
+		
+		try 
+		{
+			mysql.connectDataBase();
+			returnData = mysql.getAllComponents(userID);
+		}
+		catch (Exception e)
+		{
+			String result = "Failed: "+ e;
+			return Response.status(400).entity(result).build();
+		}
+ 
+		String result = "Succes \n";
+		return Response.status(200).entity(result + returnData).build();
 	}
 }
