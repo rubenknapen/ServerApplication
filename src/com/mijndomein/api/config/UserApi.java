@@ -1,6 +1,7 @@
 package com.mijndomein.api.config;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -48,7 +49,7 @@ public class UserApi
 		try 
 		{
 			mysql.connectDataBase();
-			query = mysql.userLogin(userID);
+			query = mysql.userLogin(userName,password);
 		}
 		catch (Exception e)
 		{

@@ -1,6 +1,7 @@
 package com.mijndomein.api.config;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,6 +32,9 @@ import java.util.Date;
 
 public class DomoticaApi 
 {
+	//Hub API calls
+	//Hub add
+	
 	@Path("/hub/add")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -64,8 +68,35 @@ public class DomoticaApi
  
 		String result = "Succes \n";
 		return Response.status(200).entity(result).build();
-	}	
+	}
 	
+	//Hub Remove
+	@Path("/hub/remove/{hubID}")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	
+	public Response removeHub(@PathParam("hubID") int hubID) throws JSONException {
+		
+		
+		MySQLAccess mysql = new MySQLAccess();
+		
+		try 
+		{
+			mysql.connectDataBase();
+			mysql.removeHub(hubID);
+		}
+		catch (Exception e)
+		{
+			String result = "Failed: "+ e;
+			return Response.status(400).entity(result).build();
+		}
+ 
+		String result = "Succes \n";
+		return Response.status(200).entity(result).build();
+	}
+	
+	//Component API calls
+	//Component Add
 	@Path("/component/add")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -113,54 +144,7 @@ public class DomoticaApi
 		return Response.status(200).entity(result).build();
 	}
 	
-	@Path("/component/remove/{componentID}")
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	
-	public Response removeComponent(@PathParam("componentID") int componentID) throws JSONException {
-		
-		
-		MySQLAccess mysql = new MySQLAccess();
-		
-		try 
-		{
-			mysql.connectDataBase();
-			mysql.removeComponent(componentID);
-		}
-		catch (Exception e)
-		{
-			String result = "Failed: "+ e;
-			return Response.status(400).entity(result).build();
-		}
- 
-		String result = "Succes \n";
-		return Response.status(200).entity(result).build();
-	}
-	
-	@Path("/hub/remove/{hubID}")
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	
-	public Response removeHub(@PathParam("hubID") int hubID) throws JSONException {
-		
-		
-		MySQLAccess mysql = new MySQLAccess();
-		
-		try 
-		{
-			mysql.connectDataBase();
-			mysql.removeHub(hubID);
-		}
-		catch (Exception e)
-		{
-			String result = "Failed: "+ e;
-			return Response.status(400).entity(result).build();
-		}
- 
-		String result = "Succes \n";
-		return Response.status(200).entity(result).build();
-	}
-	
+	//Component Retrieve All for userID
 	@Path("/component/retrieve/all/{userID}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -185,4 +169,150 @@ public class DomoticaApi
 		String result = "Succes \n";
 		return Response.status(200).entity(result + returnData).build();
 	}
+	
+	//Component Retrieve data based on componentID
+		@Path("/component/retrieve/{componentID}")
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response getComponentID (@PathParam("componentID") int componentID) throws JSONException {
+			
+			MySQLAccess mysql = new MySQLAccess();
+			
+			JSONObject returnData = null;
+			
+			try 
+			{
+				mysql.connectDataBase();
+				returnData = mysql.getComponent(componentID);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+	 
+			String result = "Succes \n";
+			return Response.status(200).entity(result + returnData).build();
+		}
+		
+	//Component Retrieve All for userID
+		@Path("/component/retrieve/status/{componentID}")
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response getComponentStatus (@PathParam("componentID") int componentID) throws JSONException {
+			
+			MySQLAccess mysql = new MySQLAccess();
+			
+			JSONObject returnData = null;
+			
+			try 
+			{
+				mysql.connectDataBase();
+				returnData = mysql.getComponentStatus(componentID);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+	 
+			String result = "Succes \n";
+			return Response.status(200).entity(result + returnData).build();
+		}
+		
+	//Component status edit based on componentID
+		@Path("/component/edit/status/{componentID}/{status}")
+		@POST
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response setComponentStatus (@PathParam("componentID") int componentID, @PathParam("status") String status) throws JSONException {
+			
+			MySQLAccess mysql = new MySQLAccess();
+			
+			JSONObject returnData = null;
+			
+			try 
+			{
+				mysql.connectDataBase();
+				returnData = mysql.setComponentStatus(componentID,status);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+	 
+			String result = "Succes \n";
+			return Response.status(200).entity(result + returnData).build();
+		}
+	
+	//Component Remove
+		@Path("/component/remove/{componentID}")
+		@DELETE
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response removeComponent(@PathParam("componentID") int componentID) throws JSONException {
+			
+			
+			MySQLAccess mysql = new MySQLAccess();
+			
+			try 
+			{
+				mysql.connectDataBase();
+				mysql.removeComponent(componentID);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+	 
+			String result = "Succes \n";
+			return Response.status(200).entity(result).build();
+		}
+		
+	//Cluster add
+		@Path("/cluster/add")
+		@POST
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response addCluster (DomoticaCluster cluster) throws JSONException {
+			
+			
+			MySQLAccess mysql = new MySQLAccess();
+			
+			int clusterID = 0;
+			int hubID = 0;
+			String name = null;
+			
+			try
+			{
+				//clusterID = cluster.getClusterID();
+				hubID = cluster.getHubID();
+				name = cluster.getName();
+			}
+			
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+			
+			try 
+			{
+				mysql.connectDataBase();
+				mysql.addCluster(hubID, name);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+	 
+			String result = "Succes \n";
+			return Response.status(200).entity(result).build();
+		}	
+		
 }

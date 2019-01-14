@@ -116,8 +116,116 @@ public class MySQLAccess {
     	return true;
     }
     
+    
+    
+    public JSONObject getComponent(int componentID) throws SQLException
+    {
+    	try
+    	{
+    		
+    	JSONObject response = new JSONObject();
+    	int hubID = 0;
+    	int clusterID = 0;
+    	String name = null;
+    	String type = null;
+    	int port = 0;
+    	String status = null;
+    	
+    	// Statements allow to issue SQL queries to the database
+        statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+        String query = String.format("SELECT * FROM  mijndomeindatabase.domoticacomponent WHERE componentID = %d", componentID);
+        resultSet = statement.executeQuery(query);
+        
+        while (resultSet.next())
+        {
+        	// Hier alle info ophalen en in JSON zetten
+        	response.put("componentID", resultSet.getInt("componentID"));
+        	response.put("hubID", resultSet.getInt("hubID"));
+        	response.put("clusterID", resultSet.getInt("clusterID"));
+        	response.put("name", resultSet.getString("name"));
+        	response.put("type", resultSet.getString("type"));
+        	response.put("port", resultSet.getInt("port"));
+        	response.put("status", resultSet.getString("status"));
+        }
+        
+    	return response;
+    	}
+    	
+    	finally
+    	{
+    		close();
+    	}
+    }
+    
+    public JSONObject getComponentStatus(int componentID) throws SQLException
+    {
+    	try
+    	{
+    		
+    	JSONObject response = new JSONObject();
+    	
+    	String status = null;
+    	
+    	// Statements allow to issue SQL queries to the database
+        statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+        String query = String.format("SELECT * FROM  mijndomeindatabase.domoticacomponent WHERE componentID = %d", componentID);
+        resultSet = statement.executeQuery(query);
+        
+        while (resultSet.next())
+        {
+        	// Hier alle info ophalen en in JSON zetten
+        	response.put("componentID", resultSet.getInt("componentID"));
+        	response.put("status", resultSet.getString("status"));
+        }
+        
+    	return response;
+    	}
+    	
+    	finally
+    	{
+    		close();
+    	}
+    }
+    
+    public JSONObject setComponentStatus(int componentID, String status) throws SQLException
+    {
+    	try
+    	{
+    		
+    	JSONObject response = new JSONObject();
+    	
+    	// Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
+
+    	preparedStatement = connect
+                .prepareStatement("UPDATE mijndomeindatabase.domoticacomponent SET status = (?) WHERE componentID = (?)");
+        
+        preparedStatement.setString(1, status);
+        preparedStatement.setInt(2, componentID);
+        preparedStatement.executeUpdate();
+    	
+        // PreparedStatements can use variables and are more efficient
+        //String query = String.format("UPDATE mijndomeindatabase.domoticacomponent SET status = %s WHERE componentID = %d", status, componentID);
+        //resultSet = statement.executeQuery(query);
+        
+    	return response;
+    	}
+    	
+    	finally
+    	{
+    		close();
+    	}
+    }
+    
     public JSONObject getAllComponents(int userID) throws SQLException
     {
+    	try
+    	{
+    		
     	JSONObject response = new JSONObject();
     	int i = 0;
     	int hubID = 0;
@@ -126,7 +234,7 @@ public class MySQLAccess {
         statement = connect.createStatement();
 
         // PreparedStatements can use variables and are more efficient
-        String subQuery = String.format("SELECT hubID FROM  mijndomeindatabase.user WHERE userID = %d", userID);
+        String subQuery = String.format("SELECT hubID FROM  mijndomeindatabase.user WHERE userID = %d", userID);        
         resultSet = statement.executeQuery(subQuery);
         while (resultSet.next())
         {
@@ -143,29 +251,57 @@ public class MySQLAccess {
         	
         	System.out.println("ComponentID found: "+resultSet.getInt("componentID"));
         	int componentID = resultSet.getInt("componentID");
-        	response.put("componentID"+i, componentID);
-        	i++;
+        	response.append("componentID", componentID);
         }
-        close();    	
+        
     	return response;
+    	}
+    	
+    	finally
+    	{
+    		close();
+    	}
     }
     
-    public boolean userLogin(int userID) throws SQLException
+    public boolean addCluster(int hubID, String name) throws SQLException 
+    {
+        // Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+        preparedStatement = connect
+                .prepareStatement("INSERT into  mijndomeindatabase.domoticacluster values (NULL, ?, ?)");
+        
+        preparedStatement.setInt(1, hubID);
+        preparedStatement.setString(2, name);
+        preparedStatement.executeUpdate();
+        close();
+    	return true;
+    }
+    
+    public boolean userLogin(String userName, String password) throws SQLException
     {    	
     	int results = 0;
     	// Statements allow to issue SQL queries to the database
-        statement = connect.createStatement();
+        //statement = connect.createStatement();
 
         // PreparedStatements can use variables and are more efficient
-        String query = String.format("SELECT userID FROM  mijndomeindatabase.user WHERE userID = (%d)", userID);
-        		
-        ResultSet resultSet = statement.executeQuery(query);
+        //String query = String.format("SELECT userID FROM  mijndomeindatabase.user WHERE username = %s AND password = %s", userName, password);
+        
+        preparedStatement = connect
+                .prepareStatement("SELECT userID FROM  mijndomeindatabase.user WHERE username = (?) AND password = (?)");
+        
+        preparedStatement.setString(1, userName);
+        preparedStatement.setString(2, password);
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+        
         while (resultSet.next())
         {
         	results++;
         }
         close();
-        if (results != 0)
+        if (results == 1)
         {
         	return true;
         }
