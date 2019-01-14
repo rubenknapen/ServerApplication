@@ -315,4 +315,28 @@ public class DomoticaApi
 			return Response.status(200).entity(result).build();
 		}	
 		
+	//Cluster remove based on clusterID
+		@Path("/cluster/remove/{clusterID}")
+		@DELETE
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response removeCluster (@PathParam("clusterID") int clusterID) throws JSONException {
+			
+			
+			MySQLAccess mysql = new MySQLAccess();
+			
+			try 
+			{
+				mysql.connectDataBase();
+				mysql.removeCluster(clusterID);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+	 
+			String result = "Succes \n";
+			return Response.status(200).entity(result).build();
+		}
 }

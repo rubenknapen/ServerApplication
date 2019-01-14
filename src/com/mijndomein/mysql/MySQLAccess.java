@@ -279,6 +279,68 @@ public class MySQLAccess {
     	return true;
     }
     
+    public boolean removeCluster(int clusterID) throws SQLException 
+    {
+        // Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+        preparedStatement = connect
+                .prepareStatement("DELETE FROM  mijndomeindatabase.domoticacluster WHERE clusterID =  (?)");
+        
+        preparedStatement.setInt(1, clusterID);
+        preparedStatement.executeUpdate();
+        close();
+    	return true;
+    }
+    
+    public boolean addConfiguration(int hubID, String name) throws SQLException 
+    {
+        // Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+    	preparedStatement = connect
+                .prepareStatement("INSERT into  mijndomeindatabase.configuration values (NULL, ?, ?)");
+        
+        preparedStatement.setInt(1, hubID);
+        preparedStatement.setString(2, name);
+        preparedStatement.executeUpdate();
+        close();
+    	return true;
+    }
+    
+    public boolean editConfiguration(int configurationID, String name) throws SQLException 
+    {
+        // Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+    	preparedStatement = connect
+                .prepareStatement("UPDATE mijndomeindatabase.configuration SET name = (?) WHERE configurationID = (?)");
+        
+        preparedStatement.setString(1, name);
+        preparedStatement.setInt(2, configurationID);
+        preparedStatement.executeUpdate();
+        close();
+    	return true;
+    }
+    
+    public boolean removeConfiguration(int configurationID) throws SQLException 
+    {
+        // Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+    	preparedStatement = connect
+                .prepareStatement("DELETE FROM  mijndomeindatabase.configuration WHERE configurationID =  (?)");
+        
+        preparedStatement.setInt(1, configurationID);
+        preparedStatement.executeUpdate();
+        close();
+    	return true;
+    }
+    
     public boolean userLogin(String userName, String password) throws SQLException
     {    	
     	int results = 0;

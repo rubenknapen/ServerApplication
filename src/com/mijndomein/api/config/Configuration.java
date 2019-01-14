@@ -4,6 +4,7 @@ public class Configuration
 {
 	private int configurationID;
 	private int hubID;
+	private String name;
 	
 	//Setters
 	public void setConfigurationID(int newConfigurationID)
@@ -16,6 +17,11 @@ public class Configuration
 		hubID = newHubID;
 	}
 	
+	public void setName(String newName)
+	{
+		name = newName;
+	}
+	
 	//Getters
 	
 	public int getConfigurationID()
@@ -23,8 +29,13 @@ public class Configuration
 		return configurationID;
 	}
 	
-	public int getHubId()
+	public int getHubID()
 	{
 		return hubID;
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 }
