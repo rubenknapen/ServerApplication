@@ -8,6 +8,8 @@ public class DomoticaComponent
 	private String type;
 	private int port;
 	private String status;
+	private int componentTypeID;
+	private String value;
 	    
 	//Setters
     public void setHubID(int newHubID) {
@@ -34,6 +36,14 @@ public class DomoticaComponent
     	status = newStatus;
     }
     
+    public void setComponentTypeID(int newComponentTypeID) {
+    	componentTypeID = newComponentTypeID;
+    }
+    
+    public void setValue(String newValue) {
+    	value = newValue;
+    }
+    
     //Getters  
     public int getHubID() {
     	return hubID;
@@ -57,5 +67,13 @@ public class DomoticaComponent
     
     public String getStatus() {
     	return status;
+    }
+    
+    public int getComponentTypeID() {
+        return componentTypeID;
+    }
+    
+    public String getValue() {
+    	return value;
     }
 }

@@ -68,7 +68,7 @@ public class ConfigurationApi
 			return Response.status(400).entity(result).build();
 		}
  
-		String result = "Succes \n";
+		String result = "";
 		return Response.status(200).entity(result).build();
 	}
 	
@@ -104,8 +104,9 @@ public class ConfigurationApi
 			{
 				return Response.status(400).entity(e).build();
 			}
-	 
-			return Response.status(200).build();
+			
+			String result = "";
+			return Response.status(200).entity(result).build();
 		}
 	
 	//Configuration Remove
@@ -128,7 +129,7 @@ public class ConfigurationApi
 			return Response.status(400).entity(result).build();
 		}
  
-		String result = "Succes \n";
+		String result = "";
 		return Response.status(200).entity(result).build();
 	}
 }

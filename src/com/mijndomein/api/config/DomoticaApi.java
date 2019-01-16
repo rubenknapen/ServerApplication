@@ -67,7 +67,7 @@ public class DomoticaApi
 			return Response.status(400).entity(result).build();
 		}
  
-		String result = "Succes \n";
+		String result = "";
 		return Response.status(200).entity(result).build();
 	}
 	
@@ -92,7 +92,7 @@ public class DomoticaApi
 			return Response.status(400).entity(result).build();
 		}
  
-		String result = "Succes \n";
+		String result = "";
 		return Response.status(200).entity(result).build();
 	}
 	
@@ -141,7 +141,7 @@ public class DomoticaApi
 			return Response.status(400).entity(result).build();
 		}
  
-		String result = "Succes \n";
+		String result = "";
 		return Response.status(200).entity(result).build();
 	}
 	
@@ -167,7 +167,7 @@ public class DomoticaApi
 			return Response.status(400).entity(result).build();
 		}
  
-		String result = "Succes \n";
+		String result = "";
 		return Response.status(200).entity(result + returnData).build();
 	}
 	
@@ -193,7 +193,7 @@ public class DomoticaApi
 				return Response.status(400).entity(result).build();
 			}
 	 
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result + returnData).build();
 		}
 		
@@ -219,7 +219,7 @@ public class DomoticaApi
 				return Response.status(400).entity(result).build();
 			}
 	 
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result + returnData).build();
 		}
 		
@@ -245,7 +245,7 @@ public class DomoticaApi
 				return Response.status(400).entity(result).build();
 			}
 	 
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result + returnData).build();
 		}
 	
@@ -270,7 +270,7 @@ public class DomoticaApi
 				return Response.status(400).entity(result).build();
 			}
 	 
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result).build();
 		}
 		
@@ -312,7 +312,7 @@ public class DomoticaApi
 				return Response.status(400).entity(result).build();
 			}
 	 
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result).build();
 		}
 		
@@ -338,7 +338,7 @@ public class DomoticaApi
 				return Response.status(400).entity(result).build();
 			}
 	 
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result + response).build();
 		}
 		
@@ -364,7 +364,7 @@ public class DomoticaApi
 				return Response.status(400).entity(result).build();
 			}
 			
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result + response).build();
 		}
 		
@@ -389,7 +389,7 @@ public class DomoticaApi
 				return Response.status(400).entity(result).build();
 			}
 	 
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result).build();
 		}
 }

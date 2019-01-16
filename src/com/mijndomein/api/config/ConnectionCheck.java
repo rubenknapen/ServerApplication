@@ -90,7 +90,7 @@ public class ConnectionCheck implements Runnable
 	        	
 		        while (resultSet.next())
 		        {
-		        	new HubConnector("HubConnector"+resultSet.getInt("hubID"),resultSet.getString("port"));
+		        	new HubConnector("HubConnector"+resultSet.getInt("hubID"),resultSet.getString("port"), resultSet.getInt("hubID"));
 		        	connectedHubID.add(resultSet.getInt("hubID"));
 		        }
 	        }

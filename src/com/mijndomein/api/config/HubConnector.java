@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import com.fazecast.jSerialComm.*;
+import com.mijndomein.mysql.MySQLAccess;
 
 public class HubConnector implements Runnable
 {
@@ -21,18 +22,28 @@ public class HubConnector implements Runnable
 	Thread t;
 	SerialPort port;
 	OutputStream outputStream;
+	int hubID = 0;
 	
+	//Commands to send to Arduino
 	String portString;
 	String tempCommand = "a";
 	String humidityCommand = "b";
+	String switch1Command = "c";
+	String switch2Command = "d";
+	String switch3Command = "e";
 	
+	//Values to write to the database
+	boolean switch1 = false;
+	boolean switch2 = false;
+	boolean switch3 = false;	
 	int temp = 0;
 	int humidity = 0;
 	
 	boolean connected = false;
 	
-	HubConnector (String thread, String portValue)
+	HubConnector (String thread, String portValue, int currentHubID)
 	{
+		hubID = currentHubID;
 		portString = portValue;
 	    name = "HubConnector"; 
 	    t = new Thread(this, name);
@@ -59,6 +70,9 @@ public class HubConnector implements Runnable
 				System.out.println("Entering sleeptimer (10s)");
 				Thread.sleep(10000);
 			    getHumidity();
+			    System.out.println("Entering sleeptimer (10s) then we write the new values into the database");
+			    Thread.sleep(10000);
+			    writeValuesToDatabase();
 			}
 			
 		    System.out.println("Entering sleeptimer (30s)");
@@ -78,9 +92,6 @@ public class HubConnector implements Runnable
 	{
 		try
 		{
-		
-		
-		
 			// determine which serial port to use
 		    SerialPort ports[] = SerialPort.getCommPorts();
 		    int i = 0;
@@ -95,12 +106,8 @@ public class HubConnector implements Runnable
 						System.out.println("selectedPortIndex = "+ selectedPortIndex);
 					}
 		    }
-		    for( int j = 1; j < ports.length ; j++)
-		    {
-		    	
-		    }
 		    
-		 // open and configure the port
+		    // open and configure the port
 	        port = ports[selectedPortIndex];
 	        if(port.openPort()) {
 	                System.out.println("Successfully opened the port.");
@@ -175,6 +182,42 @@ public class HubConnector implements Runnable
 				System.out.println("new humidity: "+parts[1]);
 				humidity = Integer.parseInt(parts[1]);
 			}
+			else if(parts[0].equals("switch1"))
+			{
+				System.out.println("new status switch1: "+parts[1]);
+				if(Integer.parseInt(parts[1]) == 1)
+				{
+					switch1 = true;
+				}
+				else if(Integer.parseInt(parts[1]) == 0)
+				{
+					switch1 = false;
+				}
+			}
+			else if(parts[0].equals("switch2"))
+			{
+				System.out.println("new status switch2: "+parts[1]);
+				if(Integer.parseInt(parts[1]) == 1)
+				{
+					switch2 = true;
+				}
+				else if(Integer.parseInt(parts[1]) == 0)
+				{
+					switch2 = false;
+				}
+			}
+			else if(parts[0].equals("switch3"))
+			{
+				System.out.println("new status switch3: "+parts[1]);
+				if(Integer.parseInt(parts[1]) == 1)
+				{
+					switch3 = true;
+				}
+				else if(Integer.parseInt(parts[1]) == 0)
+				{
+					switch3 = false;
+				}
+			}
 		}
 		catch (java.lang.ArrayIndexOutOfBoundsException e)
 		{
@@ -212,6 +255,29 @@ public class HubConnector implements Runnable
 			System.out.println("Connection lost...");
 			return;
 		}
+	}
+	
+	public void writeValuesToDatabase()
+	{
+		/*
+		MySQLAccess mysql = new MySQLAccess();
+		
+		int tempComponentID = 0;
+		int humidityComponentID = 0;
+		int switch1ID = 0;
+		int switch2ID = 0;
+		int switch3ID = 0;
+		
+		mysql.connectDataBase();
+		tempComponentID = mysql.getTempComponentID();
+		humidityComponentID = mysql.getHumidityComponentID();
+		switch1ID = mysql.getSwitchComponentID("switch1");
+		switch2ID = mysql.getSwitchComponentID("switch2");
+		switch3ID = mysql.getSwitchComponentID("switch3");
+		
+		mysql.setComponentStatus(tempComponentID,Integer.toString(temp));
+		mysql.setComponentStatus(humidityComponentID,Integer.toString(humidity));
+		*/
 	}
 }
 

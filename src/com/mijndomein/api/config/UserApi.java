@@ -59,7 +59,7 @@ public class UserApi
  
 		if (query)
 		{
-			String result = "Succes \n";
+			String result = "";
 			return Response.status(200).entity(result).build();
 		}
 		else

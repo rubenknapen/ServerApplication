@@ -144,12 +144,14 @@ public class MySQLAccess {
         {        	
         	// Hier alle info ophalen en in JSON zetten
         	response.put("componentID", resultSet.getInt("componentID"));
+        	response.put("componentTypeID", resultSet.getInt("componentTypeID"));
         	response.put("hubID", resultSet.getInt("hubID"));
         	response.put("clusterID", resultSet.getInt("clusterID"));
         	response.put("name", resultSet.getString("name"));
         	response.put("type", resultSet.getString("type"));
         	response.put("port", resultSet.getInt("port"));
         	response.put("status", resultSet.getString("status"));
+        	response.put("value", resultSet.getString("value"));
         }
         
     	return response;
@@ -254,12 +256,14 @@ public class MySQLAccess {
             
             //System.out.println("ComponentID found: "+resultSet.getInt("componentID"));
             temp.put("componentID", resultSet.getInt("componentID"));
+            temp.put("componentTypeID", resultSet.getInt("componentTypeID"));
             temp.put("name", resultSet.getString("name"));
             temp.put("hubID", resultSet.getInt("hubID"));
             temp.put("clusterID", resultSet.getInt("clusterID"));
             temp.put("type", resultSet.getString("type"));
             temp.put("port", resultSet.getInt("port"));
             temp.put("status", resultSet.getString("status"));
+            temp.put("value", resultSet.getString("value"));
             
             response.put(temp);
         }
