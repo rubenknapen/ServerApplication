@@ -111,6 +111,7 @@ public class DomoticaApi
 		String type = null;
 		int port = 0;
 		String status = null;
+		int componentTypeID = 0;
 		
 		System.out.println("incoming new component: " + component.getName());
 		
@@ -122,6 +123,8 @@ public class DomoticaApi
 			type = component.getType();
 			port = component.getPort();
 			status = component.getStatus();
+			componentTypeID = component.getComponentTypeID();
+			
 		}
 		catch (Exception e)
 		{
@@ -133,7 +136,7 @@ public class DomoticaApi
 		try 
 		{
 			mysql.connectDataBase();
-			mysql.addComponent(hubID,clusterID,name,type,port,status);
+			mysql.addComponent(hubID,clusterID,name,type,port,status, componentTypeID);
 		}
 		catch (Exception e)
 		{
@@ -367,6 +370,60 @@ public class DomoticaApi
 			String result = "";
 			return Response.status(200).entity(result + response).build();
 		}
+		
+	//Cluster retrieve All linked components
+		@Path("/cluster/retrieve/all/components/{clusterID}")
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response retrieveAllComponentsForCluster (@PathParam("clusterID") int clusterID) throws JSONException {
+			
+			
+			MySQLAccess mysql = new MySQLAccess();
+			JSONArray response = new JSONArray();
+			
+			try 
+			{
+				mysql.connectDataBase();
+				response = mysql.retrieveAllComponentsForCluster(clusterID);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+			
+			String result = "";
+			return Response.status(200).entity(result + response).build();
+		}
+		
+	//Cluster retrieve All linked components
+		@Path("/component/link/cluster/{componentID}/{clusterID}")
+		@POST
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response linkComponentToCluster (@PathParam("componentID") int componentID, @PathParam("clusterID") int clusterID) throws JSONException {
+			
+			
+			MySQLAccess mysql = new MySQLAccess();
+			JSONArray response = new JSONArray();
+			
+			try 
+			{
+				mysql.connectDataBase();
+				mysql.linkComponentToCluster(clusterID, componentID);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+			
+			String result = "";
+			return Response.status(200).entity(result + response).build();
+		}
+		
+		
 		
 	//Cluster remove based on clusterID
 		@Path("/cluster/remove/{clusterID}")

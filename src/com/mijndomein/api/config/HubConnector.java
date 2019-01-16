@@ -168,8 +168,6 @@ public class HubConnector implements Runnable
 		try
 		{
 			String[] parts = stringToSplit.split(":");
-			System.out.println("parts[0]: "+parts[0]);
-			System.out.println("parts[1]: "+parts[1]);
 			
 			if(parts[0].equals("temp"))
 			{
@@ -182,41 +180,44 @@ public class HubConnector implements Runnable
 				System.out.println("new humidity: "+parts[1]);
 				humidity = Integer.parseInt(parts[1]);
 			}
-			else if(parts[0].equals("switch1"))
+			
+			else if(parts[0].equals("BUTTON_1_PRESSED"))
 			{
-				System.out.println("new status switch1: "+parts[1]);
-				if(Integer.parseInt(parts[1]) == 1)
+				if(switch1 == false)
 				{
 					switch1 = true;
 				}
-				else if(Integer.parseInt(parts[1]) == 0)
+				else if(switch1 == true)
 				{
 					switch1 = false;
 				}
+				System.out.println("Current state of switch 1: "+switch1);
 			}
-			else if(parts[0].equals("switch2"))
+			
+			else if(parts[0].equals("BUTTON_2_PRESSED"))
 			{
-				System.out.println("new status switch2: "+parts[1]);
-				if(Integer.parseInt(parts[1]) == 1)
+				if(switch2 == false)
 				{
 					switch2 = true;
 				}
-				else if(Integer.parseInt(parts[1]) == 0)
+				else if(switch2 == true)
 				{
 					switch2 = false;
 				}
+				System.out.println("Current state of switch 2: "+switch2);
 			}
-			else if(parts[0].equals("switch3"))
+			
+			else if(parts[0].equals("BUTTON_3_PRESSED"))
 			{
-				System.out.println("new status switch3: "+parts[1]);
-				if(Integer.parseInt(parts[1]) == 1)
+				if(switch3 == false)
 				{
 					switch3 = true;
 				}
-				else if(Integer.parseInt(parts[1]) == 0)
+				else if(switch3 == true)
 				{
 					switch3 = false;
 				}
+				System.out.println("Current state of switch 3: "+switch3);
 			}
 		}
 		catch (java.lang.ArrayIndexOutOfBoundsException e)
@@ -259,25 +260,33 @@ public class HubConnector implements Runnable
 	
 	public void writeValuesToDatabase()
 	{
-		/*
+		//	componentTypeID
+		//	1 - temp
+		//	2 - humidity
+		//	3 - switch1
+		//	4 - switch2
+		//	5 - switch3
+		
 		MySQLAccess mysql = new MySQLAccess();
-		
-		int tempComponentID = 0;
-		int humidityComponentID = 0;
-		int switch1ID = 0;
-		int switch2ID = 0;
-		int switch3ID = 0;
-		
-		mysql.connectDataBase();
-		tempComponentID = mysql.getTempComponentID();
-		humidityComponentID = mysql.getHumidityComponentID();
-		switch1ID = mysql.getSwitchComponentID("switch1");
-		switch2ID = mysql.getSwitchComponentID("switch2");
-		switch3ID = mysql.getSwitchComponentID("switch3");
-		
-		mysql.setComponentStatus(tempComponentID,Integer.toString(temp));
-		mysql.setComponentStatus(humidityComponentID,Integer.toString(humidity));
-		*/
+				
+		try {
+			mysql.connectDataBase();
+			Boolean tempWrite = mysql.setComponentValue(hubID, 1, Integer.toString(temp));
+			System.out.println("Writing new temp status: "+tempWrite);
+			mysql.connectDataBase();
+			mysql.setComponentValue(hubID, 2, Integer.toString(humidity));
+			mysql.connectDataBase();
+			mysql.setComponentValue(hubID, 3, Boolean.toString(switch1));
+			mysql.connectDataBase();
+			mysql.setComponentValue(hubID, 4, Boolean.toString(switch2));
+			mysql.connectDataBase();
+			mysql.setComponentValue(hubID, 5, Boolean.toString(switch3));
+		} 
+		catch (Exception e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
 

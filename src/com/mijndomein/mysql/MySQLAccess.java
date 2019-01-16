@@ -52,14 +52,14 @@ public class MySQLAccess {
     	return true;
     }
     
-    public boolean addComponent(int hubID, int clusterID, String name, String type, int port, String status) throws SQLException 
+    public boolean addComponent(int hubID, int clusterID, String name, String type, int port, String status, int componentTypeID) throws SQLException 
     {
         // Statements allow to issue SQL queries to the database
         //statement = connect.createStatement();
 
         // PreparedStatements can use variables and are more efficient
         preparedStatement = connect
-                .prepareStatement("insert into  mijndomeindatabase.domoticacomponent values (NULL, ?, ?, ?, ?, ?, ?)");
+                .prepareStatement("insert into  mijndomeindatabase.domoticacomponent values (NULL, ?, ?, ?, ?, ?, ?, NULL, (?))");
         
         preparedStatement.setInt(1, hubID);
         preparedStatement.setInt(2, clusterID);
@@ -67,6 +67,7 @@ public class MySQLAccess {
         preparedStatement.setString(4, type);
         preparedStatement.setInt(5, port);
         preparedStatement.setString(6, status);
+        preparedStatement.setInt(7, componentTypeID);
         preparedStatement.executeUpdate();
         close();
     	return true;
@@ -359,6 +360,39 @@ public class MySQLAccess {
     	}
     }
     
+    public JSONArray retrieveAllComponentsForCluster(int clusterID) throws SQLException 
+    {
+    	try
+    	{
+    		
+    	JSONArray response = new JSONArray();
+    	
+    	// Statements allow to issue SQL queries to the database
+        statement = connect.createStatement();
+        
+        String query = String.format("SELECT * FROM  mijndomeindatabase.domoticacomponent WHERE clusterID = %d", clusterID);
+        resultSet = statement.executeQuery(query);
+        
+        while (resultSet.next())
+        {
+        	JSONObject temp = new JSONObject();
+        	
+        	//System.out.println("ComponentID found: "+resultSet.getInt("componentID"));
+        	temp.put("clusterID", resultSet.getInt("clusterID"));
+        	temp.put("hubID", resultSet.getInt("hubID"));
+        	temp.put("name", resultSet.getString("name"));
+        	response.put(temp);
+        }
+        
+    	return response;
+    	}
+    	
+    	finally
+    	{
+    		close();
+    	}
+    }
+    
     public boolean removeCluster(int clusterID) throws SQLException 
     {
         // Statements allow to issue SQL queries to the database
@@ -406,6 +440,22 @@ public class MySQLAccess {
     	return true;
     }
     
+    public boolean linkComponentToCluster(int componentID, int clusterID) throws SQLException 
+    {
+        // Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+    	preparedStatement = connect
+                .prepareStatement("UPDATE mijndomeindatabase.domoticacomponent SET clusterID = (?) WHERE componentID = (?)");
+        
+        preparedStatement.setInt(1, clusterID);
+        preparedStatement.setInt(2, componentID);
+        preparedStatement.executeUpdate();
+        close();
+    	return true;
+    }
+    
     public boolean removeConfiguration(int configurationID) throws SQLException 
     {
         // Statements allow to issue SQL queries to the database
@@ -419,6 +469,24 @@ public class MySQLAccess {
         preparedStatement.executeUpdate();
         close();
     	return true;
+    }
+    
+    public boolean setComponentValue(int hubID, int componentTypeID, String value) throws SQLException
+    {
+    	
+    	// Statements allow to issue SQL queries to the database
+        //statement = connect.createStatement();
+
+        // PreparedStatements can use variables and are more efficient
+    	preparedStatement = connect
+                .prepareStatement("UPDATE mijndomeindatabase.domoticacomponent SET value = (?) WHERE hubID = (?) AND componentTypeID = (?)");
+        
+        preparedStatement.setString(1, value);
+        preparedStatement.setInt(2, hubID);
+        preparedStatement.setInt(3, componentTypeID);
+        preparedStatement.executeUpdate();
+        close();
+        return true;
     }
     
     public boolean userLogin(String userName, String password) throws SQLException
@@ -445,10 +513,12 @@ public class MySQLAccess {
         close();
         if (results == 1)
         {
+        	close();
         	return true;
         }
         else
         {
+        	close();
         	return false;
         }
     }
