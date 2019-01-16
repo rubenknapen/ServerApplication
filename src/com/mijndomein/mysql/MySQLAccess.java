@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MySQLAccess {
@@ -125,6 +126,7 @@ public class MySQLAccess {
     		
     	JSONObject response = new JSONObject();
     	int hubID = 0;
+    	
     	int clusterID = 0;
     	String name = null;
     	String type = null;
@@ -139,7 +141,7 @@ public class MySQLAccess {
         resultSet = statement.executeQuery(query);
         
         while (resultSet.next())
-        {
+        {        	
         	// Hier alle info ophalen en in JSON zetten
         	response.put("componentID", resultSet.getInt("componentID"));
         	response.put("hubID", resultSet.getInt("hubID"));
@@ -221,16 +223,16 @@ public class MySQLAccess {
     	}
     }
     
-    public JSONObject getAllComponents(int userID) throws SQLException
+    public JSONArray getAllComponents(int userID) throws SQLException
     {
-    	try
-    	{
-    		
-    	JSONObject response = new JSONObject();
-    	int i = 0;
-    	int hubID = 0;
-    	
-    	// Statements allow to issue SQL queries to the database
+        try
+        {
+            
+        JSONArray response = new JSONArray();
+        int i = 0;
+        int hubID = 0;
+        
+        // Statements allow to issue SQL queries to the database
         statement = connect.createStatement();
 
         // PreparedStatements can use variables and are more efficient
@@ -238,29 +240,36 @@ public class MySQLAccess {
         resultSet = statement.executeQuery(subQuery);
         while (resultSet.next())
         {
-        	hubID = resultSet.getInt("hubID");
-        	System.out.println("hubID found: "+hubID);
+            hubID = resultSet.getInt("hubID");
+            System.out.println("hubID found: "+hubID);
         }
         resultSet.close();
         
-        String query = String.format("SELECT componentID FROM  mijndomeindatabase.domoticacomponent WHERE hubID = %d", hubID);
+        String query = String.format("SELECT * FROM  mijndomeindatabase.domoticacomponent WHERE hubID = %d", hubID);
         resultSet = statement.executeQuery(query);
         
         while (resultSet.next())
         {
-        	
-        	System.out.println("ComponentID found: "+resultSet.getInt("componentID"));
-        	int componentID = resultSet.getInt("componentID");
-        	response.append("componentID", componentID);
+            JSONObject temp = new JSONObject();
+            
+            //System.out.println("ComponentID found: "+resultSet.getInt("componentID"));
+            temp.put("componentID", resultSet.getInt("componentID"));
+            temp.put("name", resultSet.getString("name"));
+            temp.put("hubID", resultSet.getInt("hubID"));
+            temp.put("clusterID", resultSet.getInt("clusterID"));
+            temp.put("type", resultSet.getString("type"));
+            temp.put("port", resultSet.getInt("port"));
+            temp.put("status", resultSet.getString("status"));
+            
+            response.put(temp);
+        }
+        return response;
         }
         
-    	return response;
-    	}
-    	
-    	finally
-    	{
-    		close();
-    	}
+        finally
+        {
+            close();
+        }
     }
     
     public boolean addCluster(int hubID, String name) throws SQLException 
@@ -277,6 +286,73 @@ public class MySQLAccess {
         preparedStatement.executeUpdate();
         close();
     	return true;
+    }
+    
+    public JSONArray retrieveCluster(int clusterID) throws SQLException 
+    {
+    	try
+    	{
+    		
+    	JSONArray response = new JSONArray();
+    	
+    	// Statements allow to issue SQL queries to the database
+        statement = connect.createStatement();
+        
+        String query = String.format("SELECT * FROM  mijndomeindatabase.domoticacluster WHERE clusterID = %d", clusterID);
+        resultSet = statement.executeQuery(query);
+        
+        while (resultSet.next())
+        {
+        	JSONObject temp = new JSONObject();
+        	
+        	//System.out.println("ComponentID found: "+resultSet.getInt("componentID"));
+        	temp.put("clusterID", resultSet.getInt("clusterID"));
+        	temp.put("hubID", resultSet.getInt("hubID"));
+        	temp.put("name", resultSet.getString("name"));
+        	System.out.println("Added this temp array: "+temp);
+        	response.put(temp);
+        }
+        
+    	return response;
+    	}
+    	
+    	finally
+    	{
+    		close();
+    	}
+    }
+    
+    public JSONArray retrieveAllCluster(int hubID) throws SQLException 
+    {
+    	try
+    	{
+    		
+    	JSONArray response = new JSONArray();
+    	
+    	// Statements allow to issue SQL queries to the database
+        statement = connect.createStatement();
+        
+        String query = String.format("SELECT * FROM  mijndomeindatabase.domoticacluster WHERE hubID = %d", hubID);
+        resultSet = statement.executeQuery(query);
+        
+        while (resultSet.next())
+        {
+        	JSONObject temp = new JSONObject();
+        	
+        	//System.out.println("ComponentID found: "+resultSet.getInt("componentID"));
+        	temp.put("clusterID", resultSet.getInt("clusterID"));
+        	temp.put("hubID", resultSet.getInt("hubID"));
+        	temp.put("name", resultSet.getString("name"));
+        	response.put(temp);
+        }
+        
+    	return response;
+    	}
+    	
+    	finally
+    	{
+    		close();
+    	}
     }
     
     public boolean removeCluster(int clusterID) throws SQLException 

@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -153,7 +154,7 @@ public class DomoticaApi
 		
 		MySQLAccess mysql = new MySQLAccess();
 		
-		JSONObject returnData = null;
+		JSONArray returnData = new JSONArray();
 		
 		try 
 		{
@@ -313,7 +314,59 @@ public class DomoticaApi
 	 
 			String result = "Succes \n";
 			return Response.status(200).entity(result).build();
-		}	
+		}
+		
+	//Cluster retrieve
+		@Path("/cluster/retrieve/{clusterID}")
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response retrieveCluster (@PathParam("clusterID") int clusterID) throws JSONException {
+			
+			
+			MySQLAccess mysql = new MySQLAccess();
+			JSONArray response = new JSONArray();
+			
+			try 
+			{
+				mysql.connectDataBase();
+				response = mysql.retrieveCluster(clusterID);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+	 
+			String result = "Succes \n";
+			return Response.status(200).entity(result + response).build();
+		}
+		
+		//Cluster retrieve
+		@Path("/cluster/retrieve/all/{hubID}")
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		
+		public Response retrieveAllCluster (@PathParam("hubID") int hubID) throws JSONException {
+			
+			
+			MySQLAccess mysql = new MySQLAccess();
+			JSONArray response = new JSONArray();
+			
+			try 
+			{
+				mysql.connectDataBase();
+				response = mysql.retrieveAllCluster(hubID);
+			}
+			catch (Exception e)
+			{
+				String result = "Failed: "+ e;
+				return Response.status(400).entity(result).build();
+			}
+			
+			String result = "Succes \n";
+			return Response.status(200).entity(result + response).build();
+		}
 		
 	//Cluster remove based on clusterID
 		@Path("/cluster/remove/{clusterID}")
