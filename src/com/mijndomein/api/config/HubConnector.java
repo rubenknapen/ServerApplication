@@ -47,6 +47,7 @@ public class HubConnector implements Runnable
 		portString = portValue;
 	    name = "HubConnector"; 
 	    t = new Thread(this, name);
+	    t.setName(name+currentHubID);
 	    System.out.println("New thread: " + t);
 	    t.start();
 	}
@@ -60,24 +61,26 @@ public class HubConnector implements Runnable
 			if (!connected)
 			{
 				setupConnection();
-				System.out.println("Entering sleeptimer (20s)");
-				Thread.sleep(20000);
+				Thread.sleep(2000);
 			}
 			
 			if (connected)
 			{
 				getTemp();
-				System.out.println("Entering sleeptimer (10s)");
-				Thread.sleep(10000);
+				Thread.sleep(2000);
 			    getHumidity();
-			    System.out.println("Entering sleeptimer (10s) then we write the new values into the database");
-			    Thread.sleep(10000);
-			    writeValuesToDatabase();
+			    Thread.sleep(2000);
+			    checkActiveConnection();
+			    if (connected)
+			    {
+			    	writeValuesToDatabase();
+			    	System.out.println("["+t.getName()+"]: Latest data written to the database");
+			    }
 			}
 			
-		    System.out.println("Entering sleeptimer (30s)");
+		    System.out.println("["+t.getName()+"]: Entering sleeptimer (30s)");
 			Thread.sleep(30000);
-			System.out.println("Looping again through arduino current values!)");
+			System.out.println("["+t.getName()+"]: Looping again through arduino current values!)");
 			run();
 		}
 		
@@ -88,7 +91,7 @@ public class HubConnector implements Runnable
 		}
 	}
 	
-	public void setupConnection() throws SQLException
+	public void setupConnection() throws SQLException, InterruptedException
 	{
 		try
 		{
@@ -96,26 +99,28 @@ public class HubConnector implements Runnable
 		    SerialPort ports[] = SerialPort.getCommPorts();
 		    int i = 0;
 		    int selectedPortIndex = 0;
-		    System.out.println("received port to connect: "+portString);
+		    System.out.println("["+t.getName()+"]: received port to connect: "+portString);
 		    for(SerialPort port : ports) 
 		    {
-		            System.out.println(i++ + ". " + port.getSystemPortName());
+		            //System.out.println(""+port.getSystemPortName());
 		            if(port.getSystemPortName().equals(portString))
 					{
 						selectedPortIndex = i;
-						System.out.println("selectedPortIndex = "+ selectedPortIndex);
+						//System.out.println("selectedPortIndex = "+ selectedPortIndex);
 					}
+		            i++;
 		    }
 		    
 		    // open and configure the port
 	        port = ports[selectedPortIndex];
+	        
 	        if(port.openPort()) {
-	                System.out.println("Successfully opened the port.");
+	                System.out.println("["+t.getName()+"]: Successfully opened the port: "+port.getSystemPortName());
 	                connected = true;
 	        } 
 	        else 
 	        {
-	                System.out.println("Unable to open the port.");
+	                System.out.println("["+t.getName()+"]: Unable to open the port.");
 	                return;
 	        }
 	        
@@ -143,21 +148,24 @@ public class HubConnector implements Runnable
 	    	      int numRead = port.readBytes(newData, newData.length);
 	    	      if(newData.length == 0)
 	    	    	  return;
-	    	      System.out.println("Read " + numRead + " bytes.");
+	    	      System.out.println("["+t.getName()+"]: Read " + numRead + " bytes.");
 	    	      String arduinoResponse = new String(newData);
-	    	      System.out.println("String read: "+ arduinoResponse);
+	    	      System.out.println("["+t.getName()+"]: String read: "+ arduinoResponse);
 	    	      stringSplitter(arduinoResponse);
 	    	      
 	    	   }
 	        });
-			System.out.println("Datalistener added!");
+			System.out.println("["+t.getName()+"]: Datalistener added!");
 	        outputStream = port.getOutputStream();
-	        System.out.println("Outputstream added!");
+	        System.out.println("["+t.getName()+"]: Outputstream added!");
+	        System.out.println("["+t.getName()+"]: waiting 15 sec for device to respond!");
+	        Thread.sleep(15000);
 		    
 		}
 		catch(ArrayIndexOutOfBoundsException exception)
 		{
-			System.out.println("Device not found on COM-port");
+			System.out.println("["+t.getName()+"]: Device not found on COM-port");
+			//System.out.println("Device not found on COM-port");
 			return;
 		}
 	}
@@ -171,13 +179,13 @@ public class HubConnector implements Runnable
 			
 			if(parts[0].equals("temp"))
 			{
-				System.out.println("new temp: "+parts[1]);
+				System.out.println("["+t.getName()+"]: new temp: "+parts[1]);
 				temp = Integer.parseInt(parts[1]);
 			}
 			
 			else if(parts[0].equals("humidity"))
 			{
-				System.out.println("new humidity: "+parts[1]);
+				System.out.println("["+t.getName()+"]: new humidity: "+parts[1]);
 				humidity = Integer.parseInt(parts[1]);
 			}
 			
@@ -191,7 +199,7 @@ public class HubConnector implements Runnable
 				{
 					switch1 = false;
 				}
-				System.out.println("Current state of switch 1: "+switch1);
+				System.out.println("["+t.getName()+"]: Current state of switch 1: "+switch1);
 			}
 			
 			else if(parts[0].equals("BUTTON_2_PRESSED"))
@@ -204,7 +212,7 @@ public class HubConnector implements Runnable
 				{
 					switch2 = false;
 				}
-				System.out.println("Current state of switch 2: "+switch2);
+				System.out.println("["+t.getName()+"]: Current state of switch 2: "+switch2);
 			}
 			
 			else if(parts[0].equals("BUTTON_3_PRESSED"))
@@ -217,18 +225,18 @@ public class HubConnector implements Runnable
 				{
 					switch3 = false;
 				}
-				System.out.println("Current state of switch 3: "+switch3);
+				System.out.println("["+t.getName()+"]: Current state of switch 3: "+switch3);
 			}
 		}
 		catch (java.lang.ArrayIndexOutOfBoundsException e)
 		{
-			System.out.println("Unknown command, skipping!");
+			System.out.println("["+t.getName()+"]: Unknown command, skipping!");
 		}
 	}
 	
 	public void getTemp()
 	{
-		System.out.println("Sending tempCommand now...");
+		System.out.println("["+t.getName()+"]: Sending tempCommand now...");
 		
 		try 
 		{
@@ -237,14 +245,14 @@ public class HubConnector implements Runnable
 		catch (IOException e)
 		{
 			connected = false;
-			System.out.println("Connection lost...");
+			System.out.println("["+t.getName()+"]: Connection lost...");
 			return;
 		}
 	}
 	
 	public void getHumidity()
 	{
-		System.out.println("Sending humidityCommand now...");
+		System.out.println("["+t.getName()+"]: Sending humidityCommand now...");
 		
 		try 
 		{
@@ -253,7 +261,7 @@ public class HubConnector implements Runnable
 		catch (IOException e) 
 		{
 			connected = false;
-			System.out.println("Connection lost...");
+			System.out.println("["+t.getName()+"]: Connection lost...");
 			return;
 		}
 	}
@@ -272,7 +280,6 @@ public class HubConnector implements Runnable
 		try {
 			mysql.connectDataBase();
 			Boolean tempWrite = mysql.setComponentValue(hubID, 1, Integer.toString(temp));
-			System.out.println("Writing new temp status: "+tempWrite);
 			mysql.connectDataBase();
 			mysql.setComponentValue(hubID, 2, Integer.toString(humidity));
 			mysql.connectDataBase();
@@ -281,12 +288,32 @@ public class HubConnector implements Runnable
 			mysql.setComponentValue(hubID, 4, Boolean.toString(switch2));
 			mysql.connectDataBase();
 			mysql.setComponentValue(hubID, 5, Boolean.toString(switch3));
+			
+			temp = 0;
+			humidity = 0;
 		} 
 		catch (Exception e) 
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private void checkActiveConnection()
+	{
+		if(temp ==0 || humidity == 0)
+		{
+			closeConnection();
+		}
+	}
+	
+	private void closeConnection()
+	{
+		port.removeDataListener();
+		outputStream = null;
+		port.closePort();
+		System.out.println("["+t.getName()+"]: Device not found, closing connections");
+		connected = false;
 	}
 }
 

@@ -26,6 +26,7 @@ public class ConnectionCheck implements Runnable
     
     List<Integer> connectedHubID;
     List<Integer> unconnectedHubID;
+    List<Runnable> activeThreads;
     
 	String name;
 	Thread t;
@@ -44,6 +45,7 @@ public class ConnectionCheck implements Runnable
 	{
 		connectedHubID = new ArrayList<Integer>();
 		unconnectedHubID = new ArrayList<Integer>();
+		activeThreads = new ArrayList<Runnable>();
 	    name = "ConnectionCheck"; 
 	    t = new Thread(this, name);
 	    System.out.println("New thread: " + t);
@@ -53,14 +55,13 @@ public class ConnectionCheck implements Runnable
 	@Override
 	public void run() 
 	{
-		System.out.println("Checking for new devices");
+		System.out.println("["+t.getName()+"]: Checking for new devices");
 		
 		try 
 		{
 			getHubIDs();
-			removeConnectedHubIDs();
-			setConnectionThread();			
-			System.out.println("Entering 15 sec sleep!");
+			setConnectionThread();
+			//System.out.println("Entering 15 sec sleep!");
 			Thread.sleep(15000);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -79,6 +80,11 @@ public class ConnectionCheck implements Runnable
 	    	// Statements allow to issue SQL queries to the database
 	        statement = connect.createStatement();
 	        
+	        /*
+	        System.out.println("amount of unconnectedHubID's: "+unconnectedHubID.size());
+	        System.out.println("ID of unconnectedHubID's: "+unconnectedHubID.get(0));
+	        */
+	        
 	        for (int j = 0; j < unconnectedHubID.size(); j++ )
 	        {
 	        	preparedStatement = connect
@@ -90,15 +96,19 @@ public class ConnectionCheck implements Runnable
 	        	
 		        while (resultSet.next())
 		        {
-		        	new HubConnector("HubConnector"+resultSet.getInt("hubID"),resultSet.getString("port"), resultSet.getInt("hubID"));
-		        	connectedHubID.add(resultSet.getInt("hubID"));
+		        	if(!connectedHubID.contains(resultSet.getInt("hubID")))
+		        	{
+			        	HubConnector temp = new HubConnector("HubConnector"+resultSet.getInt("hubID"),resultSet.getString("port"), resultSet.getInt("hubID"));
+			        	connectedHubID.add(resultSet.getInt("hubID"));
+			        	//System.out.println("hubID added to connected list: "+);
+		        	}
 		        }
 	        }
-	        removeConnectedHubIDs();
+	        unconnectedHubID.removeAll(connectedHubID);
     	}
 		catch (Exception e)
 		{
-			System.out.println("error: "+e);
+			System.out.println("error hier gaat het mis1: "+e);
 		}
     	finally
     	{
@@ -112,101 +122,7 @@ public class ConnectionCheck implements Runnable
 			
 			connectedUnits++;
 		}
-	}
-	
-	public void removeConnectedHubIDs()
-	{
-		unconnectedHubID.removeAll(connectedHubID);
-	}
-	
-	
-        
-		/*
-        try 
-        {
-        	System.out.println("Sending msg now...");
-			outputStream.write(msg.getBytes());
-		} 
-        catch (IOException e) 
-        {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		*/
-		/*
-		String address = null;
-		String port = null;
-	
-		
-		try
-    	{
-			setupConnectionDatabase();
-			
-	    	// Statements allow to issue SQL queries to the database
-	        statement = connect.createStatement();
-	
-	        // PreparedStatements can use variables and are more efficient
-	        String query = String.format("SELECT * FROM  mijndomeindatabase.domoticahub");
-	        resultSet = statement.executeQuery(query);
-	        
-	        while (resultSet.next())
-	        {
-	        	// Hier alle info ophalen en in list zetten
-	        	unconnectedHubID.add(resultSet.getInt("hubID"));
-	        }
-        
-    	}
-		catch (Exception e)
-		{
-			System.out.println("error: "+e);
-		}
-    	finally
-    	{
-    		close();
-    	}
-    	
-		if (!connected)
-		{
-			{
-				obj = new Arduino("COM6",9600);
-				if (obj.openConnection())
-		        {
-		        	connected = true;
-		        	System.out.println("COM6 connection opened!");
-		        	
-		        	try 
-		        	{
-						Thread.sleep(10000);
-					} 
-		        	
-		        	catch (InterruptedException e) 
-		        	{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-		        }
-			}
-        }
-		
-		System.out.println("sending serial....");
-		obj.serialWrite("b",1,0);
-		System.out.println("reading serial....");
-    	msg = obj.serialRead();
-    	
-    	System.out.println("arduino data: " + msg);
-		
-        try 
-        {
-			Thread.sleep(5000);
-		} 
-        catch (InterruptedException e) 
-        {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-	
+	}	
 	
 	public void setupConnectionDatabase() throws Exception
 	{		
@@ -244,13 +160,13 @@ public class ConnectionCheck implements Runnable
 	        {
 	        	// Hier alle info ophalen en in list zetten
 	        	unconnectedHubID.add(resultSet.getInt("hubID"));
-	        	System.out.println("hubID: " + resultSet.getInt("hubID") + " added");
+	        	//System.out.println("hubID: " + resultSet.getInt("hubID") + " added");
 	        }
         
     	}
 		catch (Exception e)
 		{
-			System.out.println("error: "+e);
+			System.out.println("error hier gaat het mis2: "+e);
 		}
     	finally
     	{
