@@ -98,7 +98,7 @@ public class HubConnector implements Runnable
 			// determine which serial port to use
 		    SerialPort ports[] = SerialPort.getCommPorts();
 		    int i = 0;
-		    int selectedPortIndex = 0;
+		    int selectedPortIndex = 10;
 		    System.out.println("["+t.getName()+"]: received port to connect: "+portString);
 		    for(SerialPort port : ports) 
 		    {
@@ -164,8 +164,7 @@ public class HubConnector implements Runnable
 		}
 		catch(ArrayIndexOutOfBoundsException exception)
 		{
-			System.out.println("["+t.getName()+"]: Device not found on COM-port");
-			//System.out.println("Device not found on COM-port");
+			System.out.println("["+t.getName()+"]: Port requested is not available");
 			return;
 		}
 	}
